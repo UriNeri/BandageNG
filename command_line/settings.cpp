@@ -505,6 +505,7 @@ static CLI::App *addGraphSearchSettings(CLI::App &app) {
                     {"minimap2", search::Minimap2},
                     {"hmmer", search::NHMMER},
                     {"mmseqs2", search::MMSEQS2},
+                    {"diamond", search::DIAMOND},
                 }))
             ->default_val("blast");
     bs->add_option("--searchp", g_settings->searchParameters,

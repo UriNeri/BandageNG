@@ -29,6 +29,7 @@ enum GraphSearchKind {
     Minimap2,
     NHMMER,
     MMSEQS2,
+    DIAMOND,
 };
 
 // This is a class to hold all graph node search related stuff.

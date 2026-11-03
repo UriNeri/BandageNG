@@ -21,7 +21,6 @@
 #include "minimap2/minimap2search.h"
 #include "hmmer/hmmersearch.h"
 #include "mmseqs/mmseqssearch.h"
-#include "mmseqs/mmseqssearch.h"
 #include "diamond/diamondsearch.h"
 
 #include <memory>
@@ -41,9 +40,6 @@ std::unique_ptr<GraphSearch> GraphSearch::get(GraphSearchKind kind,
             break;
         case NHMMER:
             res = std::make_unique<HmmerSearch>(workDir, parent);
-            break;
-        case MMSEQS2:
-            res = std::make_unique<MmseqsSearch>(workDir, parent);
             break;
         case MMSEQS2:
             res = std::make_unique<MmseqsSearch>(workDir, parent);
