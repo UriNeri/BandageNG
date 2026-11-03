@@ -1133,6 +1133,28 @@ bool AssemblyGraph::mergeNodes(QList<DeBruijnNode *> nodes, BandageGraphicsScene
 
     deleteNodes(orderedList);
 
+    //Any graph paths that went through the merged (now deleted) nodes
+    //contain dangling pointers and must be removed.
+    QSet<DeBruijnNode *> deletedNodes;
+    for (auto *node : orderedList) {
+        deletedNodes.insert(node);
+        if (DeBruijnNode *rc = node->getReverseComplement())
+            deletedNodes.insert(rc);
+    }
+    for (auto it = m_deBruijnGraphPaths.begin(); it != m_deBruijnGraphPaths.end();) {
+        bool containsDeletedNode = false;
+        for (DeBruijnNode *pathNode : it->nodes()) {
+            if (deletedNodes.contains(pathNode)) {
+                containsDeletedNode = true;
+                break;
+            }
+        }
+        if (containsDeletedNode)
+            it = m_deBruijnGraphPaths.erase(it);
+        else
+            ++it;
+    }
+
     recalculateAllNodeWidths(g_settings->averageNodeWidth,
                              g_settings->depthPower, g_settings->depthEffectOnWidth);
 

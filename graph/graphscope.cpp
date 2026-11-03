@@ -211,10 +211,22 @@ namespace graph {
                 // contains an edge leading from its last node back to its
                 // first node.
                 const bool includeSelfLoops = g_settings->circularPathsIncludeSelfLoops;
-                auto isCircularPath = [includeSelfLoops](const Path &path) {
+                // Set of pointers to all live nodes, used to detect paths
+                // that still reference nodes deleted by graph edits (e.g.
+                // node merging) without dereferencing them.
+                std::unordered_set<const DeBruijnNode *> liveNodes;
+                liveNodes.reserve(graph.m_deBruijnGraphNodes.size());
+                for (const DeBruijnNode *node : graph.m_deBruijnGraphNodes)
+                    liveNodes.insert(node);
+
+                auto isCircularPath = [includeSelfLoops, &liveNodes](const Path &path) {
                     const auto &nodes = path.nodes();
                     if (nodes.empty())
                         return false;
+                    for (const auto *node : nodes) {
+                        if (liveNodes.find(node) == liveNodes.end())
+                            return false;
+                    }
                     // A single-node path is circular if the node connects
                     // back to itself (a self-loop edge).  Such paths are only
                     // considered when the 'include self-loop' setting is on.
