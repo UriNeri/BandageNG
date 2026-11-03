@@ -17,6 +17,7 @@ set(LIB_SOURCES
     graphsearch/blast/blastsearch.cpp
     graphsearch/minimap2/minimap2search.cpp
     graphsearch/hmmer/hmmersearch.cpp
+    graphsearch/mmseqs/mmseqssearch.cpp
     graph/assemblygraphbuilder.cpp
     graph/assemblygraph.cpp
     graph/annotationsmanager.cpp

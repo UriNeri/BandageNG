@@ -28,6 +28,7 @@ enum GraphSearchKind {
     BLAST = 0,
     Minimap2,
     NHMMER,
+    MMSEQS2,
 };
 
 // This is a class to hold all graph node search related stuff.
