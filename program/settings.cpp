@@ -53,6 +53,7 @@ Settings::Settings()
 
     graphScope = WHOLE_GRAPH;
     nodeDistance = IntSetting(0, 0, 100);
+    circularPathsIncludeSelfLoops = true;
     startingNodesExactMatch = true;
     startingNodes = "";
     startingPaths = "";

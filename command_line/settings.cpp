@@ -240,6 +240,8 @@ static CLI::App *addGraphScopeSettings(CLI::App &app) {
             ->check(CLI::NonNegativeNumber);
     scope->add_option("--maxlength", g_settings->maxLengthRange, "The maximum allowed length in bp for the lengthrange scope")
             ->check(CLI::NonNegativeNumber);
+    scope->add_flag("--include-self-loops,!--no-self-loops", g_settings->circularPathsIncludeSelfLoops,
+                    "Treat single-node paths with self-loop edges as circular for the circularpaths scope (default: on)");
     scope->add_option("--query", g_settings->queryFilename, "A FASTA file of nucleotide or protein sequences to be used as graph search queries")
             ->check(CLI::ExistingFile);
     scope->add_option("--nodes", g_settings->startingNodes, "A comma-separated list of starting nodes for the aroundnodes and aroundcomponent scopes (default: none)")

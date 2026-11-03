@@ -210,9 +210,15 @@ namespace graph {
                 // circularity structurally: a path is circular if the graph
                 // contains an edge leading from its last node back to its
                 // first node.
-                auto isCircularPath = [](const Path &path) {
+                const bool includeSelfLoops = g_settings->circularPathsIncludeSelfLoops;
+                auto isCircularPath = [includeSelfLoops](const Path &path) {
                     const auto &nodes = path.nodes();
-                    if (nodes.size() < 2)
+                    if (nodes.empty())
+                        return false;
+                    // A single-node path is circular if the node connects
+                    // back to itself (a self-loop edge).  Such paths are only
+                    // considered when the 'include self-loop' setting is on.
+                    if (nodes.size() == 1 && !includeSelfLoops)
                         return false;
                     const DeBruijnNode *lastNode = nodes.back();
                     const DeBruijnNode *firstNode = nodes.front();

@@ -236,6 +236,11 @@ public:
     long long minLengthRange = 0;
     long long maxLengthRange = 0;
 
+    //This is used for the 'Circular paths' graph scope.  If true, single-node
+    //paths whose node connects back to itself (self-loop edges) are also
+    //considered circular.
+    bool circularPathsIncludeSelfLoops = true;
+
     //This controls annotations drawing.
     AnnotationSettings annotationsSettings;
 
