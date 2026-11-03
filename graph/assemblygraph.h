@@ -201,6 +201,7 @@ public:
     QString getNodeNameFromString(QString string) const;
 
     std::vector<DeBruijnNode *> getNodesInDepthRange(double min, double max) const;
+    std::vector<DeBruijnNode *> getNodesInLengthRange(long long min, long long max) const;
 private:
     std::vector<DeBruijnNode *> getNodesFromListExact(const QStringList& nodesList, std::vector<QString> * nodesNotInGraph) const;
     std::vector<DeBruijnNode *> getNodesFromListPartial(const QStringList& nodesList, std::vector<QString> * nodesNotInGraph) const;

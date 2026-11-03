@@ -34,7 +34,8 @@ enum GraphScope {
     AROUND_WALKS,
     AROUND_QUERY_HITS,
     DEPTH_RANGE,
-    AROUND_COMPONENT
+    AROUND_COMPONENT,
+    LENGTH_RANGE
 };
 
 namespace graph {
@@ -51,6 +52,7 @@ namespace graph {
                 QString, // path or node
                 std::pair<const search::Queries*, QString>, // hits
                 std::pair<double, double>, // depth
+                std::pair<long long, long long>, // length
                 ComponentSeed // connected component seeds
         > m_opt;
         unsigned m_distance;
@@ -65,6 +67,14 @@ namespace graph {
 
         double maxDepth() const {
             return std::get<std::pair<double, double>>(m_opt).second;
+        }
+
+        long long minLength() const {
+            return std::get<std::pair<long long, long long>>(m_opt).first;
+        }
+
+        long long maxLength() const {
+            return std::get<std::pair<long long, long long>>(m_opt).second;
         }
 
         const search::Queries *queries() const {
@@ -138,6 +148,14 @@ namespace graph {
             return res;
         }
 
+        static Scope lengthRange(long long min, long long max) {
+            Scope res;
+            res.m_scope = LENGTH_RANGE;
+            res.m_opt = std::make_pair(min, max);
+
+            return res;
+        }
+
         static Scope aroundHits(const search::Queries *queries, const QString& queryName,
                                 unsigned distance = 0);
 
@@ -157,7 +175,8 @@ namespace graph {
                 double minDepthRange, double maxDepthRange,
                 const search::Queries *queries, const QString& queryName,
                 const QString &pathName, unsigned distance = 0,
-                const QString &walkName = {});
+                const QString &walkName = {},
+                long long minLengthRange = 0, long long maxLengthRange = 0);
 
     std::vector<DeBruijnNode *>
     getStartingNodes(QString *errorTitle, QString *errorMessage,

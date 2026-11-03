@@ -102,6 +102,7 @@ private:
     void setStartingNodesWidgetVisibility(bool visible);
     void setNodeDistanceWidgetVisibility(bool visible);
     void setDepthRangeWidgetVisibility(bool visible);
+    void setLengthRangeWidgetVisibility(bool visible);
     void setPathSelectionWidgetVisibility(bool visible);
     void setWalkSelectionWidgetVisibility(bool visible);
 

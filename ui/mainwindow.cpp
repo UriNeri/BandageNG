@@ -767,6 +767,7 @@ void MainWindow::graphScopeChanged()
         setStartingNodesWidgetVisibility(false);
         setNodeDistanceWidgetVisibility(false);
         setDepthRangeWidgetVisibility(false);
+        setLengthRangeWidgetVisibility(false);
         setPathSelectionWidgetVisibility(false);
         setWalkSelectionWidgetVisibility(false);
 
@@ -784,6 +785,7 @@ void MainWindow::graphScopeChanged()
         setStartingNodesWidgetVisibility(true);
         setNodeDistanceWidgetVisibility(true);
         setDepthRangeWidgetVisibility(false);
+        setLengthRangeWidgetVisibility(false);
         setPathSelectionWidgetVisibility(false);
         setWalkSelectionWidgetVisibility(false);
 
@@ -821,6 +823,7 @@ void MainWindow::graphScopeChanged()
         setStartingNodesWidgetVisibility(false);
         setNodeDistanceWidgetVisibility(true);
         setDepthRangeWidgetVisibility(false);
+        setLengthRangeWidgetVisibility(false);
         setPathSelectionWidgetVisibility(true);
         setWalkSelectionWidgetVisibility(false);
 
@@ -851,6 +854,7 @@ void MainWindow::graphScopeChanged()
         setStartingNodesWidgetVisibility(false);
         setNodeDistanceWidgetVisibility(true);
         setDepthRangeWidgetVisibility(false);
+        setLengthRangeWidgetVisibility(false);
         setPathSelectionWidgetVisibility(false);
         setWalkSelectionWidgetVisibility(true);
 
@@ -881,6 +885,7 @@ void MainWindow::graphScopeChanged()
         setStartingNodesWidgetVisibility(false);
         setNodeDistanceWidgetVisibility(true);
         setDepthRangeWidgetVisibility(false);
+        setLengthRangeWidgetVisibility(false);
         setPathSelectionWidgetVisibility(false);
         setWalkSelectionWidgetVisibility(false);
 
@@ -907,6 +912,7 @@ void MainWindow::graphScopeChanged()
         setStartingNodesWidgetVisibility(false);
         setNodeDistanceWidgetVisibility(false);
         setDepthRangeWidgetVisibility(true);
+        setLengthRangeWidgetVisibility(false);
         setPathSelectionWidgetVisibility(false);
         setWalkSelectionWidgetVisibility(false);
 
@@ -930,6 +936,7 @@ void MainWindow::graphScopeChanged()
         setStartingNodesWidgetVisibility(true);
         setNodeDistanceWidgetVisibility(false);
         setDepthRangeWidgetVisibility(false);
+        setLengthRangeWidgetVisibility(false);
         setPathSelectionWidgetVisibility(true);
         setWalkSelectionWidgetVisibility(true);
 
@@ -968,6 +975,32 @@ void MainWindow::graphScopeChanged()
         ui->graphDrawingGridLayout->addWidget(ui->drawGraphButton, 6, 1, 1, 2);
 
         break;
+
+    case 7:
+        g_settings->graphScope = LENGTH_RANGE;
+
+        setStartingNodesWidgetVisibility(false);
+        setNodeDistanceWidgetVisibility(false);
+        setDepthRangeWidgetVisibility(false);
+        setLengthRangeWidgetVisibility(true);
+        setPathSelectionWidgetVisibility(false);
+        setWalkSelectionWidgetVisibility(false);
+
+        ui->graphDrawingGridLayout->addWidget(ui->minLengthInfoText, 1, 0, 1, 1);
+        ui->graphDrawingGridLayout->addWidget(ui->minLengthLabel, 1, 1, 1, 1);
+        ui->graphDrawingGridLayout->addWidget(ui->minLengthSpinBox, 1, 2, 1, 1);
+        ui->graphDrawingGridLayout->addWidget(ui->maxLengthInfoText, 2, 0, 1, 1);
+        ui->graphDrawingGridLayout->addWidget(ui->maxLengthLabel, 2, 1, 1, 1);
+        ui->graphDrawingGridLayout->addWidget(ui->maxLengthSpinBox, 2, 2, 1, 1);
+        ui->graphDrawingGridLayout->addWidget(ui->nodeStyleInfoText, 3, 0, 1, 1);
+        ui->graphDrawingGridLayout->addWidget(ui->nodeStyleLabel, 3, 1, 1, 1);
+        ui->graphDrawingGridLayout->addWidget(ui->nodeStyleWidget, 3, 2, 1, 1);
+        ui->graphDrawingGridLayout->addWidget(ui->drawGraphInfoText, 4, 0, 1, 1);
+        ui->graphDrawingGridLayout->addWidget(ui->drawGraphButton, 4, 1, 1, 2);
+
+        break;
+
+        break;
     }
 }
 
@@ -996,6 +1029,15 @@ void MainWindow::setDepthRangeWidgetVisibility(bool visible)
     ui->maxDepthInfoText->setVisible(visible);
     ui->maxDepthLabel->setVisible(visible);
     ui->maxDepthSpinBox->setVisible(visible);
+}
+void MainWindow::setLengthRangeWidgetVisibility(bool visible)
+{
+    ui->minLengthInfoText->setVisible(visible);
+    ui->minLengthLabel->setVisible(visible);
+    ui->minLengthSpinBox->setVisible(visible);
+    ui->maxLengthInfoText->setVisible(visible);
+    ui->maxLengthLabel->setVisible(visible);
+    ui->maxLengthSpinBox->setVisible(visible);
 }
 void MainWindow::setPathSelectionWidgetVisibility(bool visible)
 {
@@ -1100,7 +1142,8 @@ void MainWindow::drawGraph() {
                          ui->queryComboBox->currentText(),
                          ui->pathSelectionLineEdit->displayText(),
                          ui->nodeDistanceSpinBox->value(),
-                         ui->walkSelectionLineEdit->displayText());
+                         ui->walkSelectionLineEdit->displayText(),
+                         ui->minLengthSpinBox->value(), ui->maxLengthSpinBox->value());
 
     auto startingNodes = graph::getStartingNodes(&errorTitle, &errorMessage,
                                                  *g_assemblyGraph, scope);

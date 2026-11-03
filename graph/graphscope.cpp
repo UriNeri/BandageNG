@@ -190,6 +190,20 @@ namespace graph {
                 }
                 return startingNodes;
             }
+            case LENGTH_RANGE: {
+                if (graphScope.minLength() > graphScope.maxLength()) {
+                    *errorTitle = "Invalid length range";
+                    *errorMessage = "The maximum length must be greater than or equal to the minimum length.";
+                    return {};
+                }
+
+                auto startingNodes = graph.getNodesInLengthRange(graphScope.minLength(), graphScope.maxLength());
+                if (startingNodes.empty()) {
+                    *errorTitle = "No nodes in range";
+                    *errorMessage = "There are no nodes with lengths in the specified range.";
+                }
+                return startingNodes;
+            }
         }
 
         return {};
@@ -199,7 +213,8 @@ namespace graph {
                 double minDepthRange, double maxDepthRange,
                 const search::Queries *queries, const QString &queryName,
                 const QString &pathName, unsigned distance,
-                const QString &walkName) {
+                const QString &walkName,
+                long long minLengthRange, long long maxLengthRange) {
         switch (graphScope) {
             case WHOLE_GRAPH:
                 return Scope::wholeGraph();
@@ -213,6 +228,8 @@ namespace graph {
                 return Scope::aroundHits(queries, queryName, distance);
             case DEPTH_RANGE:
                 return Scope::depthRange(minDepthRange, maxDepthRange);
+            case LENGTH_RANGE:
+                return Scope::lengthRange(minLengthRange, maxLengthRange);
             case AROUND_COMPONENT:
                 return Scope::aroundComponent(nodesList, pathName, walkName);
         }

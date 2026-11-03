@@ -80,7 +80,8 @@ int handleReduceCmd(QApplication *app,
                               g_settings->minDepthRange, g_settings->maxDepthRange,
                               &g_graphSearch->queries(), "all",
                               g_settings->startingPaths, g_settings->nodeDistance,
-                              g_settings->startingWalks);
+                              g_settings->startingWalks,
+                              g_settings->minLengthRange, g_settings->maxLengthRange);
     auto startingNodes = graph::getStartingNodes(&errorTitle, &errorMessage,
                                                  *g_assemblyGraph, scope);
     if (!errorMessage.isEmpty()) {

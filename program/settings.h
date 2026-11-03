@@ -232,6 +232,10 @@ public:
     FloatSetting minDepthRange;
     FloatSetting maxDepthRange;
 
+    //These are used for the 'Length range' graph scope.
+    long long minLengthRange = 0;
+    long long maxLengthRange = 0;
+
     //This controls annotations drawing.
     AnnotationSettings annotationsSettings;
 

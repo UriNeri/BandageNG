@@ -736,6 +736,17 @@ std::vector<DeBruijnNode *> AssemblyGraph::getNodesInDepthRange(double min, doub
     return returnVector;
 }
 
+std::vector<DeBruijnNode *> AssemblyGraph::getNodesInLengthRange(long long min, long long max) const {
+    std::vector<DeBruijnNode *> returnVector;
+
+    for (auto *node : m_deBruijnGraphNodes) {
+        long long length = node->getLength();
+        if (length >= min && length <= max)
+            returnVector.push_back(node);
+    }
+    return returnVector;
+}
+
 void AssemblyGraph::setAllEdgesExactOverlap(int overlap) {
     for (DeBruijnEdge *edge : m_deBruijnGraphEdges) {
         edge->setExactOverlap(overlap);

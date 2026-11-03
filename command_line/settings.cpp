@@ -211,7 +211,7 @@ static CLI::App *addGraphScopeSettings(CLI::App &app) {
     // CLI11 runs transforms in reverse registration order, so register the
     // aroundblast→aroundhits normalizer after CheckedTransformer so it runs first.
     scope->add_option("--scope", g_settings->graphScope,
-                      "Graph scope, from one of the following options: entire, aroundnodes, aroundhits, depthrange, aroundcomponent "
+                      "Graph scope, from one of the following options: entire, aroundnodes, aroundhits, depthrange, lengthrange, aroundcomponent "
                       "(aroundblast is a BLAST-only alias for aroundhits)")
             ->transform(CLI::CheckedTransformer(
                 std::vector<std::pair<std::string, GraphScope>>{
@@ -221,6 +221,7 @@ static CLI::App *addGraphScopeSettings(CLI::App &app) {
                     {"aroundhits", GraphScope::AROUND_QUERY_HITS},
                     {"aroundblast", GraphScope::AROUND_QUERY_HITS},
                     {"depthrange", GraphScope::DEPTH_RANGE},
+                    {"lengthrange", GraphScope::LENGTH_RANGE},
                     {"aroundcomponent", GraphScope::AROUND_COMPONENT}}))
             ->transform([](std::string s) {
                 if (s == "aroundblast") {
@@ -234,6 +235,10 @@ static CLI::App *addGraphScopeSettings(CLI::App &app) {
     add_setting(*scope, "--distance", g_settings->nodeDistance, "The number of node steps away to draw for the aroundnodes and aroundhits scopes");
     add_setting(*scope, "--mindepth", g_settings->minDepthRange, "The minimum allowed depth for the depthrange scope");
     add_setting(*scope, "--maxdepth", g_settings->maxDepthRange, "The maximum allowed depth for the depthrange scope");
+    scope->add_option("--minlength", g_settings->minLengthRange, "The minimum allowed length in bp for the lengthrange scope")
+            ->check(CLI::NonNegativeNumber);
+    scope->add_option("--maxlength", g_settings->maxLengthRange, "The maximum allowed length in bp for the lengthrange scope")
+            ->check(CLI::NonNegativeNumber);
     scope->add_option("--query", g_settings->queryFilename, "A FASTA file of nucleotide or protein sequences to be used as graph search queries")
             ->check(CLI::ExistingFile);
     scope->add_option("--nodes", g_settings->startingNodes, "A comma-separated list of starting nodes for the aroundnodes and aroundcomponent scopes (default: none)")
@@ -269,6 +274,11 @@ static CLI::App *addGraphScopeSettings(CLI::App &app) {
                     throw CLI::ValidationError("Bandage-NG error",
                                                "A depth range must be given with the --mindepth and\n--maxdepth options when the depthrange scope is used.");
                 break;
+            case LENGTH_RANGE:
+                if (!scope->count("--minlength") || !scope->count("--maxlength"))
+                    throw CLI::ValidationError("Bandage-NG error",
+                                               "A length range must be given with the --minlength and\n--maxlength options when the lengthrange scope is used.");
+                break;
         }
 
         // Make sure that the min depth is less than or equal to the max read
@@ -277,6 +287,13 @@ static CLI::App *addGraphScopeSettings(CLI::App &app) {
              throw CLI::ValidationError("Bandage-NG error",
                                         "the maximum depth (--maxdepth=" + std::to_string(g_settings->maxDepthRange) + ") "
                                         "must be greater than or equal to the minimum depth (--mindepth=" + std::to_string(g_settings->minDepthRange) + ").");
+
+        // Make sure that the min length is less than or equal to the max
+        // length.
+        if (g_settings->minLengthRange > g_settings->maxLengthRange)
+             throw CLI::ValidationError("Bandage-NG error",
+                                        "the maximum length (--maxlength=" + std::to_string(g_settings->maxLengthRange) + ") "
+                                        "must be greater than or equal to the minimum length (--minlength=" + std::to_string(g_settings->minLengthRange) + ").");
     });
 
     return scope;
