@@ -158,6 +158,9 @@ namespace gfa {
             gfaPathLine += qPrintable(nodes.back()->getName());
         }
 
+        // The fourth column (segment overlaps) is mandatory in GFA
+        gfaPathLine += "\t*";
+
         return gfaPathLine;
     }
 
