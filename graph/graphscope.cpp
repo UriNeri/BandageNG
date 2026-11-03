@@ -204,6 +204,41 @@ namespace graph {
                 }
                 return startingNodes;
             }
+            case CIRCULAR_PATHS: {
+                // GFA/SPAdes/GAF paths are always loaded as non-circular Path
+                // objects (they do not include the closing edge), so we detect
+                // circularity structurally: a path is circular if the graph
+                // contains an edge leading from its last node back to its
+                // first node.
+                auto isCircularPath = [](const Path &path) {
+                    const auto &nodes = path.nodes();
+                    if (nodes.size() < 2)
+                        return false;
+                    const DeBruijnNode *lastNode = nodes.back();
+                    const DeBruijnNode *firstNode = nodes.front();
+                    for (const auto *edge : lastNode->edges()) {
+                        if (edge->getStartingNode() == lastNode &&
+                            edge->getEndingNode() == firstNode)
+                            return true;
+                    }
+                    return false;
+                };
+
+                std::vector<DeBruijnNode *> startingNodes;
+                std::unordered_set<DeBruijnNode *> seen;
+                for (const auto &entry : graph.m_deBruijnGraphPaths) {
+                    if (!isCircularPath(entry))
+                        continue;
+                    appendUnique(startingNodes, seen, entry.nodes());
+                }
+
+                if (startingNodes.empty()) {
+                    *errorTitle = "No circular paths";
+                    *errorMessage = "There are no circular paths in the graph. Note that circular paths are only "
+                                    "detected when the last node of a path connects back to its first node.";
+                }
+                return startingNodes;
+            }
         }
 
         return {};
@@ -230,6 +265,8 @@ namespace graph {
                 return Scope::depthRange(minDepthRange, maxDepthRange);
             case LENGTH_RANGE:
                 return Scope::lengthRange(minLengthRange, maxLengthRange);
+            case CIRCULAR_PATHS:
+                return Scope::circularPaths();
             case AROUND_COMPONENT:
                 return Scope::aroundComponent(nodesList, pathName, walkName);
         }

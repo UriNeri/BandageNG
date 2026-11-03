@@ -211,7 +211,7 @@ static CLI::App *addGraphScopeSettings(CLI::App &app) {
     // CLI11 runs transforms in reverse registration order, so register the
     // aroundblast→aroundhits normalizer after CheckedTransformer so it runs first.
     scope->add_option("--scope", g_settings->graphScope,
-                      "Graph scope, from one of the following options: entire, aroundnodes, aroundhits, depthrange, lengthrange, aroundcomponent "
+                      "Graph scope, from one of the following options: entire, aroundnodes, aroundhits, depthrange, lengthrange, circularpaths, aroundcomponent "
                       "(aroundblast is a BLAST-only alias for aroundhits)")
             ->transform(CLI::CheckedTransformer(
                 std::vector<std::pair<std::string, GraphScope>>{
@@ -222,6 +222,7 @@ static CLI::App *addGraphScopeSettings(CLI::App &app) {
                     {"aroundblast", GraphScope::AROUND_QUERY_HITS},
                     {"depthrange", GraphScope::DEPTH_RANGE},
                     {"lengthrange", GraphScope::LENGTH_RANGE},
+                    {"circularpaths", GraphScope::CIRCULAR_PATHS},
                     {"aroundcomponent", GraphScope::AROUND_COMPONENT}}))
             ->transform([](std::string s) {
                 if (s == "aroundblast") {

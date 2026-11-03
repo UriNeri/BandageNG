@@ -35,7 +35,8 @@ enum GraphScope {
     AROUND_QUERY_HITS,
     DEPTH_RANGE,
     AROUND_COMPONENT,
-    LENGTH_RANGE
+    LENGTH_RANGE,
+    CIRCULAR_PATHS
 };
 
 namespace graph {
@@ -152,6 +153,13 @@ namespace graph {
             Scope res;
             res.m_scope = LENGTH_RANGE;
             res.m_opt = std::make_pair(min, max);
+
+            return res;
+        }
+
+        static Scope circularPaths() {
+            Scope res;
+            res.m_scope = CIRCULAR_PATHS;
 
             return res;
         }
