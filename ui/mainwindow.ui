@@ -1017,16 +1017,6 @@ When in double mode, you can include '+' or '-' at the end of the node name to s
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="graphFiltersDescriptionLabel">
-             <property name="text">
-              <string>These optional filters restrict which nodes are drawn, on top of the selected scope. A node is only drawn if it passes all of the enabled filters.</string>
-             </property>
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QWidget" name="graphFiltersInnerWidget" native="true">
              <layout class="QGridLayout" name="graphFiltersGridLayout">
               <item row="0" column="0">
