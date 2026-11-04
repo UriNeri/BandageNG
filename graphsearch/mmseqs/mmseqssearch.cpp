@@ -19,6 +19,7 @@
 #include "mmseqssearch.h"
 
 #include "graphsearch/graphsearch.h"
+#include "program/globals.h"
 #include "program/settings.h"
 
 #include "graph/assemblygraph.h"
@@ -34,10 +35,8 @@ MmseqsSearch::MmseqsSearch(const QDir &workDir, QObject *parent)
         : GraphSearch(workDir, parent) {}
 
 bool MmseqsSearch::findTools() {
-    if (!findProgram("mmseqs", &m_mmseqsCommand)) {
-        m_lastError = "Error: The program mmseqs was not found.  Please install MMseqs2 to use this feature.";
+    if (!findProgram("mmseqs", g_settings->mmseqsCommand, &m_mmseqsCommand, "MMseqs2"))
         return false;
-    }
 
     return true;
 }

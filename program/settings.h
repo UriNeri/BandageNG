@@ -219,6 +219,18 @@ public:
     // Extra parameters passed to the active graph searcher.
     QString searchParameters;
 
+    // Paths to the external search tool binaries.  If a path is empty, the
+    // tool is looked up in the PATH environment variable (the previous
+    // behaviour).  These can be set in the Settings dialog.
+    QString makeblastdbCommand;
+    QString blastnCommand;
+    QString tblastnCommand;
+    QString diamondCommand;
+    QString mmseqsCommand;
+    QString minimap2Command;
+    QString nhmmerCommand;
+    QString hmmsearchCommand;
+
     // Optional query-hit filters. Not all apply to every searcher:
     // alignment length / query coverage are used by BLAST, Minimap2, and
     // HMMER; identity is BLAST-only; e-value and bit score are used by BLAST and HMMER.

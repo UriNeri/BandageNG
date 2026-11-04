@@ -71,6 +71,13 @@ public:
 
     static bool findProgram(const QString& programName, QString * command);
 
+    // Resolves the command for an external tool.  If the user has set an
+    // explicit path for the tool in the settings (settingPath non-empty),
+    // that path is used; otherwise the tool is looked up in PATH.  On
+    // failure, m_lastError is set (optionally mentioning toolDescription).
+    bool findProgram(const QString& programName, const QString& settingPath,
+                     QString * command, const QString& toolDescription = QString());
+
     static QString cleanQueryName(QString queryName);
     void addQuery(Query *newQuery) { m_queries.addQuery(newQuery); }
     search::Query *getQueryFromName(QString queryName) const { return m_queries.getQueryFromName(queryName); }

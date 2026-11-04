@@ -19,6 +19,7 @@
 #include "diamondsearch.h"
 
 #include "graphsearch/graphsearch.h"
+#include "program/globals.h"
 #include "program/settings.h"
 
 #include "graph/assemblygraph.h"
@@ -38,10 +39,8 @@ DiamondSearch::DiamondSearch(const QDir &workDir, QObject *parent)
         : GraphSearch(workDir, parent) {}
 
 bool DiamondSearch::findTools() {
-    if (!findProgram("diamond", &m_diamondCommand)) {
-        m_lastError = "Error: The program diamond was not found.  Please install DIAMOND to use this feature.";
+    if (!findProgram("diamond", g_settings->diamondCommand, &m_diamondCommand, "DIAMOND"))
         return false;
-    }
 
     return true;
 }

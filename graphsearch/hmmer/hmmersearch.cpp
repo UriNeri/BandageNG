@@ -40,15 +40,11 @@ HmmerSearch::HmmerSearch(const QDir &workDir, QObject *parent)
         : GraphSearch(workDir, parent) {}
 
 bool HmmerSearch::findTools() {
-    if (!findProgram("nhmmer", &m_nhmmerCommand)) {
-        m_lastError = "Error: The program nhmmer was not found.";
+    if (!findProgram("nhmmer", g_settings->nhmmerCommand, &m_nhmmerCommand))
         return false;
-    }
 
-    if (!findProgram("hmmsearch", &m_hmmerCommand)) {
-        m_lastError = "Error: The program hmmsearch was not found.";
+    if (!findProgram("hmmsearch", g_settings->hmmsearchCommand, &m_hmmerCommand))
         return false;
-    }
 
     return true;
 }

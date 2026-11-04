@@ -25,6 +25,8 @@
 #include "graph/assemblygraph.h"
 #include "graph/nodecolorer.h"
 
+#include <QFileDialog>
+#include <QFileInfo>
 #include <QMessageBox>
 #include "ui_settingsdialog.h"
 
@@ -83,6 +85,15 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     connect(ui->maxLengthBaseDiscrepancyCheckBox, SIGNAL(toggled(bool)), this, SLOT(checkBoxesChanged()));
     connect(ui->minLengthBaseDiscrepancySpinBox, SIGNAL(valueChanged(int)), this, SLOT(lengthDiscrepancySpinBoxChanged()));
     connect(ui->maxLengthBaseDiscrepancySpinBox, SIGNAL(valueChanged(int)), this, SLOT(lengthDiscrepancySpinBoxChanged()));
+
+    connect(ui->makeblastdbBrowseButton, SIGNAL(clicked()), this, SLOT(browseForToolPath()));
+    connect(ui->blastnBrowseButton, SIGNAL(clicked()), this, SLOT(browseForToolPath()));
+    connect(ui->tblastnBrowseButton, SIGNAL(clicked()), this, SLOT(browseForToolPath()));
+    connect(ui->diamondBrowseButton, SIGNAL(clicked()), this, SLOT(browseForToolPath()));
+    connect(ui->mmseqsBrowseButton, SIGNAL(clicked()), this, SLOT(browseForToolPath()));
+    connect(ui->minimap2BrowseButton, SIGNAL(clicked()), this, SLOT(browseForToolPath()));
+    connect(ui->nhmmerBrowseButton, SIGNAL(clicked()), this, SLOT(browseForToolPath()));
+    connect(ui->hmmsearchBrowseButton, SIGNAL(clicked()), this, SLOT(browseForToolPath()));
 }
 
 SettingsDialog::~SettingsDialog()
@@ -222,6 +233,31 @@ void SettingsDialog::loadOrSaveSettingsToOrFromWidgets(bool setWidgets, Settings
     intFunctionPointer(&settings->minLengthBaseDiscrepancy, ui->minLengthBaseDiscrepancySpinBox);
     checkBoxFunctionPointer(&settings->maxLengthBaseDiscrepancy.on, ui->maxLengthBaseDiscrepancyCheckBox);
     intFunctionPointer(&settings->maxLengthBaseDiscrepancy, ui->maxLengthBaseDiscrepancySpinBox);
+
+    //The search tool paths are in line edits, so they have to be done
+    //manually, not with the function pointers.
+    if (setWidgets)
+    {
+        ui->makeblastdbPathEdit->setText(settings->makeblastdbCommand);
+        ui->blastnPathEdit->setText(settings->blastnCommand);
+        ui->tblastnPathEdit->setText(settings->tblastnCommand);
+        ui->diamondPathEdit->setText(settings->diamondCommand);
+        ui->mmseqsPathEdit->setText(settings->mmseqsCommand);
+        ui->minimap2PathEdit->setText(settings->minimap2Command);
+        ui->nhmmerPathEdit->setText(settings->nhmmerCommand);
+        ui->hmmsearchPathEdit->setText(settings->hmmsearchCommand);
+    }
+    else
+    {
+        settings->makeblastdbCommand = ui->makeblastdbPathEdit->text().trimmed();
+        settings->blastnCommand = ui->blastnPathEdit->text().trimmed();
+        settings->tblastnCommand = ui->tblastnPathEdit->text().trimmed();
+        settings->diamondCommand = ui->diamondPathEdit->text().trimmed();
+        settings->mmseqsCommand = ui->mmseqsPathEdit->text().trimmed();
+        settings->minimap2Command = ui->minimap2PathEdit->text().trimmed();
+        settings->nhmmerCommand = ui->nhmmerPathEdit->text().trimmed();
+        settings->hmmsearchCommand = ui->hmmsearchPathEdit->text().trimmed();
+    }
 
     //A couple of settings are not in a spin box, check box or colour button, so
     //they have to be done manually, not with those function pointers.
@@ -372,4 +408,36 @@ void SettingsDialog::lengthDiscrepancySpinBoxChanged()
         ui->maxLengthBaseDiscrepancySpinBox->setPrefix("+");
     else
         ui->maxLengthBaseDiscrepancySpinBox->setPrefix("");
+}
+
+//This opens a file browser to let the user pick the path to a search tool
+//binary.  The sender of the signal determines which tool the path is for.
+void SettingsDialog::browseForToolPath()
+{
+    QObject *sender = this->sender();
+    QString pathEditName, toolName;
+
+    if (sender == ui->makeblastdbBrowseButton) { pathEditName = "makeblastdbPathEdit"; toolName = "makeblastdb"; }
+    else if (sender == ui->blastnBrowseButton) { pathEditName = "blastnPathEdit"; toolName = "blastn"; }
+    else if (sender == ui->tblastnBrowseButton) { pathEditName = "tblastnPathEdit"; toolName = "tblastn"; }
+    else if (sender == ui->diamondBrowseButton) { pathEditName = "diamondPathEdit"; toolName = "diamond"; }
+    else if (sender == ui->mmseqsBrowseButton) { pathEditName = "mmseqsPathEdit"; toolName = "mmseqs"; }
+    else if (sender == ui->minimap2BrowseButton) { pathEditName = "minimap2PathEdit"; toolName = "minimap2"; }
+    else if (sender == ui->nhmmerBrowseButton) { pathEditName = "nhmmerPathEdit"; toolName = "nhmmer"; }
+    else if (sender == ui->hmmsearchBrowseButton) { pathEditName = "hmmsearchPathEdit"; toolName = "hmmsearch"; }
+    else
+        return;
+
+    QLineEdit *pathEdit = findChild<QLineEdit *>(pathEditName);
+    if (!pathEdit)
+        return;
+
+    QString currentPath = pathEdit->text();
+    QString startingDir = currentPath.isEmpty() ? QString() : QFileInfo(currentPath).absolutePath();
+
+    QString fileName = QFileDialog::getOpenFileName(this, "Select the " + toolName + " executable", startingDir);
+    if (fileName.isEmpty())
+        return;
+
+    pathEdit->setText(fileName);
 }

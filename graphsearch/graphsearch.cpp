@@ -105,6 +105,26 @@ bool GraphSearch::findProgram(const QString &programName, QString * command)
 }
 #endif
 
+// Resolves the command for an external tool.  If the user has set an
+// explicit path for the tool in the settings (settingPath non-empty), that
+// path is used; otherwise the tool is looked up in PATH.
+bool GraphSearch::findProgram(const QString &programName, const QString &settingPath,
+                              QString * command, const QString& toolDescription)
+{
+    if (!settingPath.isEmpty()) {
+        *command = settingPath;
+        return true;
+    }
+
+    if (findProgram(programName, command))
+        return true;
+
+    if (!toolDescription.isEmpty())
+        m_lastError = "Error: The program " + programName + " was not found.  Please install " +
+                      toolDescription + " to use this feature, or set its path in the settings.";
+    return false;
+}
+
 void GraphSearch::emptyTempDirectory() const {
     QDir tempDirectory(m_tempDirectory.path());
     tempDirectory.setNameFilters(QStringList() << "*.*");

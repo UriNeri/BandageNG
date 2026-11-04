@@ -19,6 +19,7 @@
 #include "minimap2search.h"
 
 #include "graphsearch/graphsearch.h"
+#include "program/globals.h"
 #include "program/settings.h"
 
 #include "graph/assemblygraph.h"
@@ -35,10 +36,8 @@ Minimap2Search::Minimap2Search(const QDir &workDir, QObject *parent)
         : GraphSearch(workDir, parent) {}
 
 bool Minimap2Search::findTools() {
-    if (!findProgram("minimap2", &m_minimap2Command)) {
-        m_lastError = "Error: The program minimap2 was not found.";
+    if (!findProgram("minimap2", g_settings->minimap2Command, &m_minimap2Command))
         return false;
-    }
 
     return true;
 }

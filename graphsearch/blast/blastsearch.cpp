@@ -19,6 +19,7 @@
 
 #include "blastsearch.h"
 
+#include "program/globals.h"
 #include "program/settings.h"
 
 #include "graph/assemblygraph.h"
@@ -36,18 +37,12 @@ BlastSearch::BlastSearch(const QDir &workDir, QObject *parent)
   : GraphSearch(workDir, parent) {}
 
 bool BlastSearch::findTools() {
-    if (!findProgram("makeblastdb", &m_makeblastdbCommand)) {
-        m_lastError = "Error: The program makeblastdb was not found.  Please install NCBI BLAST to use this feature.";
+    if (!findProgram("makeblastdb", g_settings->makeblastdbCommand, &m_makeblastdbCommand, "NCBI BLAST"))
         return false;
-    }
-    if (!findProgram("blastn", &m_blastnCommand)) {
-        m_lastError = "Error: The program blastn was not found.  Please install NCBI BLAST to use this feature.";
+    if (!findProgram("blastn", g_settings->blastnCommand, &m_blastnCommand, "NCBI BLAST"))
         return false;
-    }
-    if (!findProgram("tblastn", &m_tblastnCommand)) {
-        m_lastError = "Error: The program tblastn was not found.  Please install NCBI BLAST to use this feature.";
+    if (!findProgram("tblastn", g_settings->tblastnCommand, &m_tblastnCommand, "NCBI BLAST"))
         return false;
-    }
 
     return true;
 }

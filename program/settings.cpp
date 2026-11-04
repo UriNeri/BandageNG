@@ -136,6 +136,16 @@ Settings::Settings()
 
     searchParameters = "";
 
+    //Empty means that the tools should be looked up in PATH.
+    makeblastdbCommand = "";
+    blastnCommand = "";
+    tblastnCommand = "";
+    diamondCommand = "";
+    mmseqsCommand = "";
+    minimap2Command = "";
+    nhmmerCommand = "";
+    hmmsearchCommand = "";
+
     alignmentLengthFilter = IntSetting(100, 1, 1000000, false);
     queryCoverageFilter = FloatSetting(50.0, 0.0, 100.0, false);
     identityFilter = FloatSetting(90.0, 0.0, 100.0, false);
