@@ -1,3 +1,10 @@
+## IMPORTANT: This is a fork of forked BandageNG repo. It was created to specifically add these features:
+* Additional search engines: Diamond and mmseqs2
+* Circular paths and contigs: Via the "scope"d view, so ONLY draws around nodes that are either: circular based on the P in the graph (if present) or identified as circular contigous paths (de novo). Note, this considers self-loops as circular.   
+LLM was used to add these features. I make no guarantee of their correctness or completeness.
+
+
+
 [![License](https://img.shields.io/badge/licence-GPLv3-blue)](https://www.gnu.org/licenses/gpl-3.0)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/asl/BandageNG?include_prereleases)
 [![GitHub Downloads](https://img.shields.io/github/downloads/asl/BandageNG/total.svg?style=social&logo=github&label=Download)](https://github.com/asl/BandageNG/releases)
