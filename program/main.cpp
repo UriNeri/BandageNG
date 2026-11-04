@@ -138,6 +138,15 @@ static void chooseQtPlatform(const CLI::App &app, const SubCmd &cmd) {
 #ifdef Q_OS_LINUX
     if (!guiNeeded && qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM"))
         qputenv("QT_QPA_PLATFORM", QByteArrayLiteral("minimal"));
+
+    // When running the GUI inside a desktop session, use the xdg-desktop-portal
+    // platform theme (if available) so that file dialogs are provided by the
+    // desktop environment (e.g. KDE's dialog with Places and recent files)
+    // instead of Qt's generic dialog.  The portal theme wraps the normal
+    // platform theme, so the rest of the look and feel is unaffected.
+    if (guiNeeded && qEnvironmentVariableIsEmpty("QT_QPA_PLATFORMTHEME") &&
+        !qEnvironmentVariableIsEmpty("XDG_CURRENT_DESKTOP"))
+        qputenv("QT_QPA_PLATFORMTHEME", QByteArrayLiteral("xdgdesktopportal"));
 #endif
 }
 
