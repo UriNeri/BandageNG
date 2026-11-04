@@ -36,7 +36,8 @@ enum GraphScope {
     DEPTH_RANGE,
     AROUND_COMPONENT,
     LENGTH_RANGE,
-    CIRCULAR_PATHS
+    CIRCULAR_PATHS,
+    CIRCULAR_CONTIGS
 };
 
 namespace graph {
@@ -160,6 +161,13 @@ namespace graph {
         static Scope circularPaths() {
             Scope res;
             res.m_scope = CIRCULAR_PATHS;
+
+            return res;
+        }
+
+        static Scope circularContigs() {
+            Scope res;
+            res.m_scope = CIRCULAR_CONTIGS;
 
             return res;
         }

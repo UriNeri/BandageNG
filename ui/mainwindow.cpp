@@ -1017,6 +1017,24 @@ void MainWindow::graphScopeChanged()
         ui->graphDrawingGridLayout->addWidget(ui->drawGraphButton, 2, 1, 1, 2);
 
         break;
+
+    case 9:
+        g_settings->graphScope = CIRCULAR_CONTIGS;
+
+        setStartingNodesWidgetVisibility(false);
+        setNodeDistanceWidgetVisibility(false);
+        setDepthRangeWidgetVisibility(false);
+        setLengthRangeWidgetVisibility(false);
+        setPathSelectionWidgetVisibility(false);
+        setWalkSelectionWidgetVisibility(false);
+
+        ui->graphDrawingGridLayout->addWidget(ui->nodeStyleInfoText, 1, 0, 1, 1);
+        ui->graphDrawingGridLayout->addWidget(ui->nodeStyleLabel, 1, 1, 1, 1);
+        ui->graphDrawingGridLayout->addWidget(ui->nodeStyleWidget, 1, 2, 1, 1);
+        ui->graphDrawingGridLayout->addWidget(ui->drawGraphInfoText, 2, 0, 1, 1);
+        ui->graphDrawingGridLayout->addWidget(ui->drawGraphButton, 2, 1, 1, 2);
+
+        break;
     }
 }
 

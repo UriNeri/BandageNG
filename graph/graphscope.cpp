@@ -24,6 +24,7 @@
 #include "assemblygraph.h"
 #include "path.h"
 
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
@@ -257,6 +258,116 @@ namespace graph {
                 }
                 return startingNodes;
             }
+            case CIRCULAR_CONTIGS: {
+                // Unlike CIRCULAR_PATHS, this scope does not rely on path
+                // records (which may be absent, e.g. in pre-scaffolding
+                // SPAdes graphs).  Instead, circularity is detected purely
+                // structurally: a node is considered circular if it has a
+                // self-loop edge or if it lies on a directed cycle, i.e. it
+                // belongs to a non-trivial strongly connected component.
+                // An iterative version of Tarjan's SCC algorithm is used.
+
+                auto hasSelfLoop = [](DeBruijnNode *node) {
+                    for (const auto *edge : node->edges())
+                        if (edge->getStartingNode() == node &&
+                            edge->getEndingNode() == node)
+                            return true;
+                    return false;
+                };
+
+                auto successorsOf = [](DeBruijnNode *node) {
+                    std::vector<DeBruijnEdge *> out;
+                    for (auto *edge : node->edges())
+                        if (edge->getStartingNode() == node)
+                            out.push_back(edge);
+                    return out;
+                };
+
+                std::unordered_map<DeBruijnNode *, int> indices, lowlinks;
+                std::unordered_set<DeBruijnNode *> onStack;
+                std::vector<DeBruijnNode *> sccStack;
+                indices.reserve(graph.m_deBruijnGraphNodes.size());
+                lowlinks.reserve(graph.m_deBruijnGraphNodes.size());
+                int nextIndex = 0;
+
+                std::unordered_set<DeBruijnNode *> cyclicNodes;
+
+                struct Frame {
+                    DeBruijnNode *node;
+                    std::vector<DeBruijnEdge *> successors;
+                    size_t next = 0;
+                };
+                std::vector<Frame> dfs;
+
+                for (DeBruijnNode *root : graph.m_deBruijnGraphNodes) {
+                    if (indices.count(root))
+                        continue;
+                    indices[root] = lowlinks[root] = nextIndex++;
+                    sccStack.push_back(root);
+                    onStack.insert(root);
+                    dfs.push_back({root, successorsOf(root), 0});
+
+                    while (!dfs.empty()) {
+                        DeBruijnNode *node = dfs.back().node;
+                        if (dfs.back().next < dfs.back().successors.size()) {
+                            DeBruijnEdge *edge = dfs.back().successors[dfs.back().next++];
+                            DeBruijnNode *succ = edge->getEndingNode();
+                            if (!indices.count(succ)) {
+                                indices[succ] = lowlinks[succ] = nextIndex++;
+                                sccStack.push_back(succ);
+                                onStack.insert(succ);
+                                dfs.push_back({succ, successorsOf(succ), 0});
+                            } else if (onStack.count(succ)) {
+                                lowlinks[node] = std::min(lowlinks[node], indices[succ]);
+                            }
+                        } else {
+                            dfs.pop_back();
+                            if (!dfs.empty())
+                                lowlinks[dfs.back().node] =
+                                        std::min(lowlinks[dfs.back().node], lowlinks[node]);
+                            if (lowlinks[node] == indices[node]) {
+                                // Root of an SCC: pop the component off the stack.
+                                std::vector<DeBruijnNode *> component;
+                                while (true) {
+                                    DeBruijnNode *w = sccStack.back();
+                                    sccStack.pop_back();
+                                    onStack.erase(w);
+                                    component.push_back(w);
+                                    if (w == node)
+                                        break;
+                                }
+                                if (component.size() > 1)
+                                    cyclicNodes.insert(component.begin(), component.end());
+                                else if (hasSelfLoop(component[0]))
+                                    cyclicNodes.insert(component[0]);
+                            }
+                        }
+                    }
+                }
+
+                // Since edges come in reverse complement pairs, SCCs are
+                // closed under reverse complementation.  Report only one
+                // node of each {node, reverse complement} pair.
+                std::vector<DeBruijnNode *> startingNodes;
+                std::unordered_set<DeBruijnNode *> seen;
+                for (DeBruijnNode *node : graph.m_deBruijnGraphNodes) {
+                    if (!cyclicNodes.count(node))
+                        continue;
+                    DeBruijnNode *canonical = node->getCanonical();
+                    if (!canonical)
+                        canonical = node;
+                    if (seen.insert(canonical).second)
+                        startingNodes.push_back(canonical);
+                }
+
+                if (startingNodes.empty()) {
+                    *errorTitle = "No circular contigs";
+                    *errorMessage = "There are no circular contigs in the graph. Note that circular contigs are "
+                                    "detected structurally: a node is circular if it has a self-loop edge or if "
+                                    "it lies on a directed cycle in the graph.";
+                }
+                return startingNodes;
+            }
         }
 
         return {};
@@ -285,6 +396,8 @@ namespace graph {
                 return Scope::lengthRange(minLengthRange, maxLengthRange);
             case CIRCULAR_PATHS:
                 return Scope::circularPaths();
+            case CIRCULAR_CONTIGS:
+                return Scope::circularContigs();
             case AROUND_COMPONENT:
                 return Scope::aroundComponent(nodesList, pathName, walkName);
         }
