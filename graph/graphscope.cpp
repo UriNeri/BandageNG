@@ -24,6 +24,7 @@
 #include "assemblygraph.h"
 #include "path.h"
 
+#include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -50,11 +51,32 @@ namespace graph {
         }
     }
 
-    std::vector<DeBruijnNode *>
-    getStartingNodes(QString *errorTitle, QString *errorMessage,
-                     const AssemblyGraph &graph, const Scope &graphScope) {
+    // Returns the starting nodes for the scope itself, without applying
+    // any filter.
+    static void applyFilter(QString *errorTitle, QString *errorMessage,
+                            const AssemblyGraph &graph, const Scope &graphScope,
+                            std::vector<DeBruijnNode *> &startingNodes);
+
+    static std::vector<DeBruijnNode *>
+    getScopeStartingNodes(QString *errorTitle, QString *errorMessage,
+                          const AssemblyGraph &graph, const Scope &graphScope) {
         switch (graphScope.graphScope()) {
             default:
+                return {};
+            case WHOLE_GRAPH:
+                // For the whole graph scope, the base set of starting nodes
+                // is every positive node in the graph.  This is normally
+                // unused (markNodesToDraw draws everything), but it matters
+                // when a filter is active, as the filter then restricts
+                // this set.
+                if (graphScope.hasActiveFilter()) {
+                    std::vector<DeBruijnNode *> startingNodes;
+                    for (auto &entry : graph.m_deBruijnGraphNodes) {
+                        if (entry->isPositiveNode())
+                            startingNodes.push_back(entry);
+                    }
+                    return startingNodes;
+                }
                 return {};
             case AROUND_NODE: {
                 if (AssemblyGraph::checkIfStringHasNodes(graphScope.nodeList())) {
@@ -237,6 +259,93 @@ namespace graph {
         return {};
     }
 
+    std::vector<DeBruijnNode *>
+    getStartingNodes(QString *errorTitle, QString *errorMessage,
+                     const AssemblyGraph &graph, const Scope &graphScope) {
+        auto startingNodes = getScopeStartingNodes(errorTitle, errorMessage, graph, graphScope);
+        applyFilter(errorTitle, errorMessage, graph, graphScope, startingNodes);
+        return startingNodes;
+    }
+
+    // Restricts the given starting nodes to only those that satisfy all of
+    // the enabled criteria of the scope's filter (AND semantics).  A node
+    // is kept if it or its reverse complement passes each enabled
+    // criterion.
+    static void applyFilter(QString *errorTitle, QString *errorMessage,
+                            const AssemblyGraph &graph, const Scope &graphScope,
+                            std::vector<DeBruijnNode *> &startingNodes) {
+        const Filter &filter = graphScope.filter();
+        if (!filter.isActive())
+            return;
+
+        if (filter.useDepthRange && filter.minDepth > filter.maxDepth) {
+            *errorTitle = "Invalid depth range";
+            *errorMessage = "The maximum depth must be greater than or equal to the minimum depth.";
+            startingNodes.clear();
+            return;
+        }
+
+        if (filter.useLengthRange && filter.minLength > filter.maxLength) {
+            *errorTitle = "Invalid length range";
+            *errorMessage = "The maximum length must be greater than or equal to the minimum length.";
+            startingNodes.clear();
+            return;
+        }
+
+        auto keepIf = [&startingNodes](auto &&passes) {
+            auto it = std::remove_if(startingNodes.begin(), startingNodes.end(),
+                                     [&](DeBruijnNode *node) {
+                                         return !passes(node) &&
+                                                !passes(node->getReverseComplement());
+                                     });
+            startingNodes.erase(it, startingNodes.end());
+        };
+
+        if (filter.circularContigs) {
+            std::unordered_set<DeBruijnNode *> circularNodes;
+            for (DeBruijnNode *node : getCircularContigNodes(graph))
+                circularNodes.insert(node);
+            keepIf([&](DeBruijnNode *node) { return circularNodes.count(node); });
+        }
+
+        if (filter.circularPaths) {
+            std::unordered_set<DeBruijnNode *> pathNodes;
+            for (const auto &entry : graph.m_deBruijnGraphPaths) {
+                if (!isCircularPath(graph, entry))
+                    continue;
+                for (DeBruijnNode *node : entry.nodes())
+                    pathNodes.insert(node);
+            }
+            keepIf([&](DeBruijnNode *node) { return pathNodes.count(node); });
+        }
+
+        if (filter.useDepthRange) {
+            std::unordered_set<DeBruijnNode *> nodesInRange;
+            for (DeBruijnNode *node : graph.getNodesInDepthRange(filter.minDepth, filter.maxDepth))
+                nodesInRange.insert(node);
+            keepIf([&](DeBruijnNode *node) { return nodesInRange.count(node); });
+        }
+
+        if (filter.useLengthRange) {
+            std::unordered_set<DeBruijnNode *> nodesInRange;
+            for (DeBruijnNode *node : graph.getNodesInLengthRange(filter.minLength, filter.maxLength))
+                nodesInRange.insert(node);
+            keepIf([&](DeBruijnNode *node) { return nodesInRange.count(node); });
+        }
+
+        if (!filter.namePattern.isEmpty()) {
+            keepIf([&](DeBruijnNode *node) {
+                return node->getName().contains(filter.namePattern, Qt::CaseInsensitive);
+            });
+        }
+
+        if (startingNodes.empty()) {
+            *errorTitle = "No nodes match the filters";
+            *errorMessage = "There are no nodes in the selected scope that satisfy all of the "
+                            "enabled filters.";
+        }
+    }
+
     bool isCircularPath(const AssemblyGraph &graph, const Path &path) {
         // GFA/SPAdes/GAF paths are always loaded as non-circular Path
         // objects (they do not include the closing edge), so we detect
@@ -395,32 +504,47 @@ namespace graph {
                 const search::Queries *queries, const QString &queryName,
                 const QString &pathName, unsigned distance,
                 const QString &walkName,
-                long long minLengthRange, long long maxLengthRange) {
+                long long minLengthRange, long long maxLengthRange,
+                const Filter &filter) {
+        Scope res = Scope::wholeGraph();
         switch (graphScope) {
             case WHOLE_GRAPH:
-                return Scope::wholeGraph();
+                res = Scope::wholeGraph();
+                break;
             case AROUND_NODE:
-                return Scope::aroundNodes(nodesList, distance);
+                res = Scope::aroundNodes(nodesList, distance);
+                break;
             case AROUND_PATHS:
-                return Scope::aroundPath(pathName, distance);
+                res = Scope::aroundPath(pathName, distance);
+                break;
             case AROUND_WALKS:
-                return Scope::aroundWalk(walkName.isEmpty() ? pathName : walkName, distance);
+                res = Scope::aroundWalk(walkName.isEmpty() ? pathName : walkName, distance);
+                break;
             case AROUND_QUERY_HITS:
-                return Scope::aroundHits(queries, queryName, distance);
+                res = Scope::aroundHits(queries, queryName, distance);
+                break;
             case DEPTH_RANGE:
-                return Scope::depthRange(minDepthRange, maxDepthRange);
+                res = Scope::depthRange(minDepthRange, maxDepthRange);
+                break;
             case LENGTH_RANGE:
-                return Scope::lengthRange(minLengthRange, maxLengthRange);
+                res = Scope::lengthRange(minLengthRange, maxLengthRange);
+                break;
             case CIRCULAR_PATHS:
-                return Scope::circularPaths();
+                res = Scope::circularPaths();
+                break;
             case CIRCULAR_CONTIGS:
-                return Scope::circularContigs();
+                res = Scope::circularContigs();
+                break;
             case AROUND_COMPONENT:
-                return Scope::aroundComponent(nodesList, pathName, walkName);
+                res = Scope::aroundComponent(nodesList, pathName, walkName);
+                break;
+            default:
+                assert(0 && "Invalid scope!");
+                return Scope::wholeGraph();
         }
 
-        assert(0 && "Invalid scope!");
-        return Scope::wholeGraph();
+        res.setFilter(filter);
+        return res;
     }
 
     Scope Scope::aroundHits(const search::Queries &queries, const QString& queryName,

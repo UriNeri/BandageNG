@@ -127,6 +127,11 @@ public:
     QString startingNodes;
     QString startingPaths;
     QString startingWalks;
+
+    // Criteria for the FILTERED scope (see graph::Filter).  The depth and
+    // length ranges here are only used when the corresponding "use" flags
+    // are true.
+    graph::Filter graphFilter;
     QString queryFilename;
     search::GraphSearchKind graphSearcher = search::BLAST;
     // True when CLI --scope aroundblast was used (compat alias; requires BLAST).

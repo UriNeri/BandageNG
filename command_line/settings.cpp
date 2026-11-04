@@ -243,6 +243,17 @@ static CLI::App *addGraphScopeSettings(CLI::App &app) {
             ->check(CLI::NonNegativeNumber);
     scope->add_flag("--include-self-loops,!--no-self-loops", g_settings->circularPathsIncludeSelfLoops,
                     "Treat single-node paths with self-loop edges as circular for the circularpaths scope (default: on)");
+    scope->add_flag("--filter-circular-contigs", g_settings->graphFilter.circularContigs,
+                    "Only draw structurally circular contigs, regardless of the scope");
+    scope->add_flag("--filter-circular-paths", g_settings->graphFilter.circularPaths,
+                    "Only draw nodes that are part of circular paths, regardless of the scope");
+    scope->add_flag("--filter-depth", g_settings->graphFilter.useDepthRange,
+                    "Only draw nodes with a depth in the range given by --mindepth/--maxdepth, regardless of the scope");
+    scope->add_flag("--filter-length", g_settings->graphFilter.useLengthRange,
+                    "Only draw nodes with a length in the range given by --minlength/--maxlength, regardless of the scope");
+    scope->add_option("--filter-name", g_settings->graphFilter.namePattern,
+                      "Only draw nodes whose name contains this text (case-insensitive), regardless of the scope")
+            ->capture_default_str();
     scope->add_option("--query", g_settings->queryFilename, "A FASTA file of nucleotide or protein sequences to be used as graph search queries")
             ->check(CLI::ExistingFile);
     scope->add_option("--nodes", g_settings->startingNodes, "A comma-separated list of starting nodes for the aroundnodes and aroundcomponent scopes (default: none)")
@@ -285,6 +296,15 @@ static CLI::App *addGraphScopeSettings(CLI::App &app) {
                 break;
         }
 
+        if (g_settings->graphFilter.useDepthRange &&
+            (!scope->count("--mindepth") || !scope->count("--maxdepth")))
+            throw CLI::ValidationError("Bandage-NG error",
+                                       "A depth range must be given with the --mindepth and\n--maxdepth options when --filter-depth is used.");
+        if (g_settings->graphFilter.useLengthRange &&
+            (!scope->count("--minlength") || !scope->count("--maxlength")))
+            throw CLI::ValidationError("Bandage-NG error",
+                                       "A length range must be given with the --minlength and\n--maxlength options when --filter-length is used.");
+
         // Make sure that the min depth is less than or equal to the max read
         // depth.
         if (g_settings->minDepthRange > g_settings->maxDepthRange)
@@ -298,6 +318,13 @@ static CLI::App *addGraphScopeSettings(CLI::App &app) {
              throw CLI::ValidationError("Bandage-NG error",
                                         "the maximum length (--maxlength=" + std::to_string(g_settings->maxLengthRange) + ") "
                                         "must be greater than or equal to the minimum length (--minlength=" + std::to_string(g_settings->minLengthRange) + ").");
+
+        // The filter depth/length ranges reuse the --mindepth/--maxdepth and
+        // --minlength/--maxlength values.
+        g_settings->graphFilter.minDepth = g_settings->minDepthRange;
+        g_settings->graphFilter.maxDepth = g_settings->maxDepthRange;
+        g_settings->graphFilter.minLength = g_settings->minLengthRange;
+        g_settings->graphFilter.maxLength = g_settings->maxLengthRange;
     });
 
     return scope;

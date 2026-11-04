@@ -48,6 +48,27 @@ namespace graph {
         QString walks;
     };
 
+    // Optional criteria that restrict which nodes are drawn, on top of
+    // any graph scope.  A node is kept only if it satisfies all of the
+    // enabled criteria (AND semantics).  If no criterion is enabled, the
+    // filter has no effect.
+    struct Filter {
+        bool circularContigs = false;
+        bool circularPaths = false;
+        bool useDepthRange = false;
+        double minDepth = 0;
+        double maxDepth = 0;
+        bool useLengthRange = false;
+        long long minLength = 0;
+        long long maxLength = 0;
+        QString namePattern; // case-insensitive substring match on node name
+
+        bool isActive() const {
+            return circularContigs || circularPaths || useDepthRange ||
+                   useLengthRange || !namePattern.isEmpty();
+        }
+    };
+
     class Scope {
         GraphScope m_scope;
         std::variant<
@@ -59,10 +80,15 @@ namespace graph {
                 ComponentSeed // connected component seeds
         > m_opt;
         unsigned m_distance;
+        Filter m_filter;
     public:
         GraphScope graphScope() const { return m_scope; }
 
         unsigned distance() const { return m_distance; }
+
+        const Filter &filter() const { return m_filter; }
+        void setFilter(const Filter &filter) { m_filter = filter; }
+        bool hasActiveFilter() const { return m_filter.isActive(); }
 
         double minDepth() const {
             return std::get<std::pair<double, double>>(m_opt).first;
@@ -186,14 +212,16 @@ namespace graph {
                 : m_scope(WHOLE_GRAPH), m_opt{nullptr}, m_distance(0) {}
     };
 
-    // All-in-one function intended to be used in UIs and such
+    // All-in-one function intended to be used in UIs and such.  The
+    // optional filter restricts the starting nodes of any scope.
     Scope scope(GraphScope graphScope,
                 const QString &nodesList,
                 double minDepthRange, double maxDepthRange,
                 const search::Queries *queries, const QString& queryName,
                 const QString &pathName, unsigned distance = 0,
                 const QString &walkName = {},
-                long long minLengthRange = 0, long long maxLengthRange = 0);
+                long long minLengthRange = 0, long long maxLengthRange = 0,
+                const Filter &filter = {});
 
     std::vector<DeBruijnNode *>
     getStartingNodes(QString *errorTitle, QString *errorMessage,

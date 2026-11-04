@@ -166,6 +166,11 @@ MainWindow::MainWindow(QString fileToLoadOnStartup, bool drawGraphAfterLoad) :
     connect(ui->actionLoad_links, SIGNAL(triggered()), this, SLOT(loadGraphLinks()));
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(close()));
     connect(ui->graphScopeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(graphScopeChanged()));
+    connect(ui->filterCircularContigsCheckBox, SIGNAL(toggled(bool)), this, SLOT(filterCriterionChanged()));
+    connect(ui->filterCircularPathsCheckBox, SIGNAL(toggled(bool)), this, SLOT(filterCriterionChanged()));
+    connect(ui->filterDepthCheckBox, SIGNAL(toggled(bool)), this, SLOT(filterCriterionChanged()));
+    connect(ui->filterLengthCheckBox, SIGNAL(toggled(bool)), this, SLOT(filterCriterionChanged()));
+    connect(ui->filterNameLineEdit, &QLineEdit::textChanged, this, &MainWindow::filterCriterionChanged);
     connect(ui->zoomSpinBox, SIGNAL(valueChanged(double)), this, SLOT(zoomSpinBoxChanged()));
     connect(m_graphicsViewZoom, SIGNAL(zoomed()), this, SLOT(zoomedWithMouseWheel()));
     connect(ui->actionCopy_selected_node_sequences_to_clipboard, SIGNAL(triggered()), this, SLOT(copySelectedSequencesToClipboardActionTriggered()));
@@ -1035,7 +1040,29 @@ void MainWindow::graphScopeChanged()
         ui->graphDrawingGridLayout->addWidget(ui->drawGraphButton, 2, 1, 1, 2);
 
         break;
+
     }
+}
+
+
+void MainWindow::filterCriterionChanged()
+{
+    g_settings->graphFilter.circularContigs = ui->filterCircularContigsCheckBox->isChecked();
+    g_settings->graphFilter.circularPaths = ui->filterCircularPathsCheckBox->isChecked();
+    g_settings->graphFilter.useDepthRange = ui->filterDepthCheckBox->isChecked();
+    g_settings->graphFilter.useLengthRange = ui->filterLengthCheckBox->isChecked();
+    g_settings->graphFilter.namePattern = ui->filterNameLineEdit->text().trimmed();
+
+    // The depth and length ranges are only relevant when their filter is
+    // enabled; hide the corresponding min/max boxes otherwise.
+    ui->filterMinDepthLabel->setVisible(g_settings->graphFilter.useDepthRange);
+    ui->filterMinDepthSpinBox->setVisible(g_settings->graphFilter.useDepthRange);
+    ui->filterMaxDepthLabel->setVisible(g_settings->graphFilter.useDepthRange);
+    ui->filterMaxDepthSpinBox->setVisible(g_settings->graphFilter.useDepthRange);
+    ui->filterMinLengthLabel->setVisible(g_settings->graphFilter.useLengthRange);
+    ui->filterMinLengthSpinBox->setVisible(g_settings->graphFilter.useLengthRange);
+    ui->filterMaxLengthLabel->setVisible(g_settings->graphFilter.useLengthRange);
+    ui->filterMaxLengthSpinBox->setVisible(g_settings->graphFilter.useLengthRange);
 }
 
 
@@ -1086,6 +1113,7 @@ void MainWindow::setWalkSelectionWidgetVisibility(bool visible)
     ui->walkSelectionLabel->setVisible(visible);
     ui->walkSelectionLineEdit->setVisible(visible);
 }
+
 
 void MainWindow::setupPathSelectionLineEdit(QLineEdit *lineEdit) {
     lineEdit->clear();
@@ -1168,6 +1196,18 @@ void MainWindow::drawGraph() {
     QString errorMessage;
     g_settings->doubleMode = ui->doubleNodesRadioButton->isChecked();
 
+    graph::Filter filter;
+    filter.circularContigs = ui->filterCircularContigsCheckBox->isChecked();
+    filter.circularPaths = ui->filterCircularPathsCheckBox->isChecked();
+    filter.useDepthRange = ui->filterDepthCheckBox->isChecked();
+    filter.minDepth = ui->filterMinDepthSpinBox->value();
+    filter.maxDepth = ui->filterMaxDepthSpinBox->value();
+    filter.useLengthRange = ui->filterLengthCheckBox->isChecked();
+    filter.minLength = ui->filterMinLengthSpinBox->value();
+    filter.maxLength = ui->filterMaxLengthSpinBox->value();
+    filter.namePattern = ui->filterNameLineEdit->text().trimmed();
+    g_settings->graphFilter = filter;
+
     auto scope =
             graph::scope(g_settings->graphScope,
                          ui->startingNodesLineEdit->text(),
@@ -1177,7 +1217,8 @@ void MainWindow::drawGraph() {
                          ui->pathSelectionLineEdit->displayText(),
                          ui->nodeDistanceSpinBox->value(),
                          ui->walkSelectionLineEdit->displayText(),
-                         ui->minLengthSpinBox->value(), ui->maxLengthSpinBox->value());
+                         ui->minLengthSpinBox->value(), ui->maxLengthSpinBox->value(),
+                         filter);
 
     auto startingNodes = graph::getStartingNodes(&errorTitle, &errorMessage,
                                                  *g_assemblyGraph, scope);
@@ -2484,6 +2525,17 @@ void MainWindow::setWidgetsFromSettings()
 
     ui->minDepthSpinBox->setValue(g_settings->minDepthRange);
     ui->maxDepthSpinBox->setValue(g_settings->maxDepthRange);
+
+    ui->filterCircularContigsCheckBox->setChecked(g_settings->graphFilter.circularContigs);
+    ui->filterCircularPathsCheckBox->setChecked(g_settings->graphFilter.circularPaths);
+    ui->filterDepthCheckBox->setChecked(g_settings->graphFilter.useDepthRange);
+    ui->filterLengthCheckBox->setChecked(g_settings->graphFilter.useLengthRange);
+    ui->filterNameLineEdit->setText(g_settings->graphFilter.namePattern);
+    ui->filterMinDepthSpinBox->setValue(g_settings->graphFilter.minDepth);
+    ui->filterMaxDepthSpinBox->setValue(g_settings->graphFilter.maxDepth);
+    ui->filterMinLengthSpinBox->setValue(g_settings->graphFilter.minLength);
+    ui->filterMaxLengthSpinBox->setValue(g_settings->graphFilter.maxLength);
+    filterCriterionChanged();
 }
 
 void MainWindow::setGraphScopeComboBox(GraphScope graphScope) {

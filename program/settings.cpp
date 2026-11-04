@@ -58,6 +58,7 @@ Settings::Settings()
     startingNodes = "";
     startingPaths = "";
     startingWalks = "";
+    graphFilter = graph::Filter{};
     queryFilename = "";
     unnamedQueryDefaultName = "unnamed";
 

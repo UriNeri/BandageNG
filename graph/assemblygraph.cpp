@@ -535,7 +535,7 @@ bool AssemblyGraph::loadGraphFromFile(const QString& filename) {
 //is not WHOLE_GRAPH.
 void AssemblyGraph::markNodesToDraw(const graph::Scope &scope,
                                     const std::vector<DeBruijnNode *>& startingNodes) {
-    if (scope.graphScope() == WHOLE_GRAPH) {
+    if (scope.graphScope() == WHOLE_GRAPH && !scope.hasActiveFilter()) {
         for (auto &entry : m_deBruijnGraphNodes) {
             //If double mode is off, only positive nodes are drawn.  If it's
             //on, all nodes are drawn.

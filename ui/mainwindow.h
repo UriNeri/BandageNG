@@ -119,6 +119,7 @@ private slots:
     void loadGraphLinks(QString fullFileName = "");
     void selectionChanged();
     void graphScopeChanged();
+    void filterCriterionChanged();
     void drawGraph();
     void zoomSpinBoxChanged();
     void zoomedWithMouseWheel();
