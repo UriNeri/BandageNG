@@ -3,6 +3,7 @@
 
 #include "program/globals.h"
 #include "graph/assemblygraph.h"
+#include "graph/graphscope.h"
 #include <QPair>
 
 GraphInfoDialog::GraphInfoDialog(QWidget *parent) :
@@ -73,6 +74,9 @@ void GraphInfoDialog::setLabels()
     ui->connectedComponentsLabel->setText(formatIntForDisplay(componentCount));
     ui->largestComponentLabel->setText(formatIntForDisplay(largestComponentLength) + " bp (" + percentageLargestComponent + "%)");
     ui->orphanedLengthLabel->setText(formatIntForDisplay(totalLengthOrphanedNodes) + " bp (" + percentageOrphaned + "%)");
+
+    ui->circularPathsCountLabel->setText(formatIntForDisplay(graph::countCircularPaths(*g_assemblyGraph)));
+    ui->circularContigsCountLabel->setText(formatIntForDisplay(graph::countCircularContigs(*g_assemblyGraph)));
 
     int n50 = 0;
     int shortestNode = 0;

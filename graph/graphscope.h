@@ -23,6 +23,7 @@
 
 class DeBruijnNode;
 class AssemblyGraph;
+class Path;
 namespace search {
     class Queries;
 }
@@ -197,4 +198,27 @@ namespace graph {
     std::vector<DeBruijnNode *>
     getStartingNodes(QString *errorTitle, QString *errorMessage,
                      const AssemblyGraph &graph, const Scope &graphScope = Scope::wholeGraph());
+
+    // Returns true if the given path is circular, i.e. its last node
+    // connects back to its first node (see the CIRCULAR_PATHS scope for
+    // the exact criteria).
+    bool isCircularPath(const AssemblyGraph &graph, const Path &path);
+
+    // Returns the nodes of structurally circular contigs in the graph:
+    // nodes that have a self-loop edge or lie on a directed cycle (see the
+    // CIRCULAR_CONTIGS scope for the exact criteria).  Only one node of
+    // each {node, reverse complement} pair is returned.
+    std::vector<DeBruijnNode *> getCircularContigNodes(const AssemblyGraph &graph);
+
+    // Returns the number of circular paths in the graph, i.e. paths whose
+    // last node connects back to their first node (see the CIRCULAR_PATHS
+    // scope for the exact criteria).
+    int countCircularPaths(const AssemblyGraph &graph);
+
+    // Returns the number of circular contigs in the graph, i.e. nodes that
+    // are structurally circular: they have a self-loop edge or lie on a
+    // directed cycle (see the CIRCULAR_CONTIGS scope for the exact
+    // criteria).  Only one node of each {node, reverse complement} pair is
+    // counted.
+    int countCircularContigs(const AssemblyGraph &graph);
 }

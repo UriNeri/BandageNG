@@ -575,6 +575,109 @@
         </property>
        </widget>
       </item>
+      <item row="16" column="0" colspan="3">
+       <widget class="Line" name="line_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="17" column="0" colspan="3">
+       <widget class="QLabel" name="circularityHeaderLabel">
+        <property name="font">
+         <font>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Circularity</string>
+        </property>
+       </widget>
+      </item>
+      <item row="18" column="0">
+       <widget class="InfoTextWidget" name="circularPathsInfoText" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         &lt;string&gt;&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The number of graph paths (P lines) whose last node connects back to their first node. Single-node paths are only counted if their node has a self-loop edge (this can be changed in the settings).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;&lt;/string&gt;
+        </property>
+       </widget>
+      </item>
+      <item row="18" column="1">
+       <widget class="QLabel" name="circularPathsLabel">
+        <property name="text">
+         <string>Circular paths:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="18" column="2">
+       <widget class="QLabel" name="circularPathsCountLabel">
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+        </property>
+       </widget>
+      </item>
+      <item row="19" column="0">
+       <widget class="InfoTextWidget" name="circularContigsInfoText" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         &lt;string&gt;&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The number of structurally circular contigs: nodes that have a self-loop edge or lie on a directed cycle. This is detected independently of any path records, so it also works for graphs without paths (e.g. pre-scaffolding SPAdes graphs).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;&lt;/string&gt;
+        </property>
+       </widget>
+      </item>
+      <item row="19" column="1">
+       <widget class="QLabel" name="circularContigsLabel">
+        <property name="text">
+         <string>Circular contigs:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="19" column="2">
+       <widget class="QLabel" name="circularContigsCountLabel">
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
