@@ -131,3 +131,14 @@ void llvm::report_bad_alloc_error(const char *Reason, bool GenCrashDiag) {
 // errors are handled by throwing 'std::bad_alloc'.
 void llvm::install_out_of_memory_new_handler() {
 }
+
+void llvm::llvm_unreachable_internal(const char *msg, const char *file,
+                                     unsigned line) {
+  // This code intentionally doesn't call report_fatal_error because that
+  // function may be overridden by a user.
+  if (msg)
+    fprintf(stderr, "LLVM ERROR: %s\n", msg);
+  if (file)
+    fprintf(stderr, "%s:%u\n", file, line);
+  abort();
+}

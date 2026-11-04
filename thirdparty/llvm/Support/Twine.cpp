@@ -174,10 +174,16 @@ void Twine::printRepr(raw_ostream &OS) const {
 
 #if !defined(NDEBUG) || defined(LLVM_ENABLE_DUMP)
 LLVM_DUMP_METHOD void Twine::dump() const {
-  print(dbgs());
+  SmallString<256> Buf;
+  raw_svector_ostream OS(Buf);
+  print(OS);
+  fprintf(stderr, "%s\n", Buf.c_str());
 }
 
 LLVM_DUMP_METHOD void Twine::dumpRepr() const {
-  printRepr(dbgs());
+  SmallString<256> Buf;
+  raw_svector_ostream OS(Buf);
+  printRepr(OS);
+  fprintf(stderr, "%s\n", Buf.c_str());
 }
 #endif

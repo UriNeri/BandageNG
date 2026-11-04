@@ -40,10 +40,12 @@ HmmerSearch::HmmerSearch(const QDir &workDir, QObject *parent)
         : GraphSearch(workDir, parent) {}
 
 bool HmmerSearch::findTools() {
-    if (!findProgram("nhmmer", g_settings->nhmmerCommand, &m_nhmmerCommand))
+    if (!findProgram("nhmmer", g_settings->nhmmerCommand, &m_nhmmerCommand,
+                     "HMMER (for the nhmmer program)"))
         return false;
 
-    if (!findProgram("hmmsearch", g_settings->hmmsearchCommand, &m_hmmerCommand))
+    if (!findProgram("hmmsearch", g_settings->hmmsearchCommand, &m_hmmerCommand,
+                     "HMMER (for the hmmsearch program)"))
         return false;
 
     return true;
@@ -297,8 +299,6 @@ QString HmmerSearch::doAutoGraphSearch(const AssemblyGraph &graph, QString queri
 // This function returns the number of queries loaded from the HMM file.
 int HmmerSearch::loadQueriesFromFile(QString fullFileName) {
     m_lastError = "";
-    if (!findTools())
-        return 0;
 
     int queriesBefore = int(getQueryCount());
 
