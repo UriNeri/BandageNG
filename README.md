@@ -1,6 +1,7 @@
 ## IMPORTANT: This is a fork of forked BandageNG repo. It was created to specifically add these features:
-* Additional search engines: Diamond and mmseqs2
+* Additional search engines: Diamond, mmseqs2, hmmsearch (nhmmer + pathracer)
 * Circular paths and contigs: Via the "scope"d view, so ONLY draws around nodes that are either: circular based on the P in the graph (if present) or identified as circular contigous paths (de novo). Note, this considers self-loops as circular.   
+* multiple filter options (e.g. only draw what's in length range AND depth range).
 LLM was used to add these features. I make no guarantee of their correctness or completeness.
 
 

@@ -132,6 +132,14 @@ namespace utils {
             unsigned length = 0;
             std::optional<bool> protHmm;
 
+            // Some HMM files contain blank lines between the records, which
+            // leave leading whitespace on every part but the first one after
+            // the split above.  Trim it so all records are recognized.  Note
+            // that trimming also removes the trailing newline, so it is
+            // re-added below to keep the "//" terminator of the written query
+            // file on its own line.
+            part = part.trimmed();
+
             // Sanity check
             if (!part.startsWith("HMMER3"))
                 continue;
@@ -157,7 +165,7 @@ namespace utils {
 
             names.push_back(name);
             lengths.push_back(length);
-            hmms.push_back(part.toLatin1());
+            hmms.push_back((part + '\n').toLatin1());
             protHmms.push_back(*protHmm);
         }
 
