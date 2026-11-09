@@ -146,6 +146,7 @@ Settings::Settings()
     minimap2Command = "";
     nhmmerCommand = "";
     hmmsearchCommand = "";
+    pathracerCommand = "";
 
     alignmentLengthFilter = IntSetting(100, 1, 1000000, false);
     queryCoverageFilter = FloatSetting(50.0, 0.0, 100.0, false);

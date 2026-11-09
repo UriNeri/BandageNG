@@ -235,6 +235,7 @@ public:
     QString minimap2Command;
     QString nhmmerCommand;
     QString hmmsearchCommand;
+    QString pathracerCommand;
 
     // Optional query-hit filters. Not all apply to every searcher:
     // alignment length / query coverage are used by BLAST, Minimap2, and

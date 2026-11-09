@@ -30,6 +30,7 @@ enum GraphSearchKind {
     NHMMER,
     MMSEQS2,
     DIAMOND,
+    PATHRACER,
 };
 
 // This is a class to hold all graph node search related stuff.

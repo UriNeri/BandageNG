@@ -22,6 +22,7 @@
 #include "hmmer/hmmersearch.h"
 #include "mmseqs/mmseqssearch.h"
 #include "diamond/diamondsearch.h"
+#include "pathracer/pathracersearch.h"
 
 #include <memory>
 
@@ -46,6 +47,9 @@ std::unique_ptr<GraphSearch> GraphSearch::get(GraphSearchKind kind,
             break;
         case DIAMOND:
             res = std::make_unique<DiamondSearch>(workDir, parent);
+            break;
+        case PATHRACER:
+            res = std::make_unique<PathRacerSearch>(workDir, parent);
             break;
     }
 

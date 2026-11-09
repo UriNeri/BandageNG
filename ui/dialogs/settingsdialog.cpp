@@ -94,6 +94,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     connect(ui->minimap2BrowseButton, SIGNAL(clicked()), this, SLOT(browseForToolPath()));
     connect(ui->nhmmerBrowseButton, SIGNAL(clicked()), this, SLOT(browseForToolPath()));
     connect(ui->hmmsearchBrowseButton, SIGNAL(clicked()), this, SLOT(browseForToolPath()));
+    connect(ui->pathracerBrowseButton, SIGNAL(clicked()), this, SLOT(browseForToolPath()));
 }
 
 SettingsDialog::~SettingsDialog()
@@ -246,6 +247,7 @@ void SettingsDialog::loadOrSaveSettingsToOrFromWidgets(bool setWidgets, Settings
         ui->minimap2PathEdit->setText(settings->minimap2Command);
         ui->nhmmerPathEdit->setText(settings->nhmmerCommand);
         ui->hmmsearchPathEdit->setText(settings->hmmsearchCommand);
+        ui->pathracerPathEdit->setText(settings->pathracerCommand);
     }
     else
     {
@@ -257,6 +259,7 @@ void SettingsDialog::loadOrSaveSettingsToOrFromWidgets(bool setWidgets, Settings
         settings->minimap2Command = ui->minimap2PathEdit->text().trimmed();
         settings->nhmmerCommand = ui->nhmmerPathEdit->text().trimmed();
         settings->hmmsearchCommand = ui->hmmsearchPathEdit->text().trimmed();
+        settings->pathracerCommand = ui->pathracerPathEdit->text().trimmed();
     }
 
     //A couple of settings are not in a spin box, check box or colour button, so
@@ -425,6 +428,7 @@ void SettingsDialog::browseForToolPath()
     else if (sender == ui->minimap2BrowseButton) { pathEditName = "minimap2PathEdit"; toolName = "minimap2"; }
     else if (sender == ui->nhmmerBrowseButton) { pathEditName = "nhmmerPathEdit"; toolName = "nhmmer"; }
     else if (sender == ui->hmmsearchBrowseButton) { pathEditName = "hmmsearchPathEdit"; toolName = "hmmsearch"; }
+    else if (sender == ui->pathracerBrowseButton) { pathEditName = "pathracerPathEdit"; toolName = "pathracer"; }
     else
         return;
 

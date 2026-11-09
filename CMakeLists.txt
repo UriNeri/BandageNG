@@ -19,6 +19,7 @@ set(LIB_SOURCES
     graphsearch/hmmer/hmmersearch.cpp
     graphsearch/mmseqs/mmseqssearch.cpp
     graphsearch/diamond/diamondsearch.cpp
+    graphsearch/pathracer/pathracersearch.cpp
     graph/assemblygraphbuilder.cpp
     graph/assemblygraph.cpp
     graph/annotationsmanager.cpp

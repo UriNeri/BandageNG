@@ -528,7 +528,7 @@ static CLI::App *addDepthColorsSettings(CLI::App &app) {
 static CLI::App *addGraphSearchSettings(CLI::App &app) {
     auto *bs = app.add_option_group("Graph search");
     bs->add_option("--searcher", g_settings->graphSearcher,
-                   "Graph search backend: blast, minimap2, hmmer, mmseqs2, or diamond (default: blast)")
+                   "Graph search backend: blast, minimap2, hmmer, mmseqs2, diamond, or pathracer (default: blast)")
             ->transform(CLI::CheckedTransformer(
                 std::vector<std::pair<std::string, search::GraphSearchKind>>{
                     {"blast", search::BLAST},
@@ -536,6 +536,7 @@ static CLI::App *addGraphSearchSettings(CLI::App &app) {
                     {"hmmer", search::NHMMER},
                     {"mmseqs2", search::MMSEQS2},
                     {"diamond", search::DIAMOND},
+                    {"pathracer", search::PATHRACER},
                 }))
             ->default_val("blast");
     bs->add_option("--searchp", g_settings->searchParameters,
